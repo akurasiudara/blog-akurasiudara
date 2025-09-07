@@ -1,0 +1,71 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { supabase } from '../../lib/supabase';
+import { marked } from 'marked';
+import ShareButtons from '../../components/ShareButtons.astro';
+import '../../styles/markdown.css';
+
+function formatDate(dateString) {
+	const options = { day: '2-digit', month: 'long', year: 'numeric' };
+	return new Date(dateString).toLocaleDateString('id-ID', options);
+}
+
+function calculateReadingTime(content) {
+    if (!content) return '1 min';
+    const wordsPerMinute = 200;
+    const words = content.trim().split(/\s+/).length;
+    return `${Math.ceil(words / wordsPerMinute)} min`;
+}
+
+export async function getStaticPaths() { const { data: posts } = await supabase.from('posts').select('slug'); return posts?.map(({ slug }) => ({ params: { slug } })) || []; }
+const { slug } = Astro.params;
+const { data: post } = await supabase.from('posts').select('*, image_url, content, category').eq('slug', slug).single();
+const renderedContent = post ? await marked.parse(post.content) : '';
+const readingTime = calculateReadingTime(post?.content);
+
+const pageUrl = Astro.url.href;
+const shareText = `Baca "${post?.title}" di Akurasi Udara:`;
+---
+<Layout title={post?.title || 'Postingan'}>
+	<div class="row justify-content-center">
+		<div class="col-lg-8">
+			<header class="mb-4">
+				<h1 class="display-5 fw-bold">{post?.title}</h1>
+				<div class="d-flex align-items-center text-secondary mb-3">
+					<span class="me-3"><i class="bi bi-tag-fill me-1"></i> {post?.category || 'Umum'}</span>
+					<span class="me-3"><i class="bi bi-calendar-event me-1"></i> {formatDate(post?.created_at)}</span>
+					<span><i class="bi bi-eye-fill me-1"></i> {readingTime}</span>
+				</div>
+			</header>
+			<img src={post?.image_url} class="img-fluid rounded-3 mb-4 shadow-sm" alt="" />
+			
+			<article class="prose" id="post-content">
+				<Fragment set:html={renderedContent} />
+                <hr class="my-5">
+                <ShareButtons url={pageUrl} text={shareText} />
+			</article>
+		</div>
+	</div>
+
+    <script is:inline src="/js/twemoji.min.js"></script>
+    
+    <script is:inline>
+        // PERBAIKAN FINAL: Menambahkan penundaan untuk memastikan konten siap
+        function runTwemoji() {
+            // Beri jeda sesaat (0 milidetik) untuk memastikan DOM sudah di-render
+            setTimeout(() => {
+                const postContent = document.getElementById('post-content');
+                if (typeof twemoji !== 'undefined' && postContent) {
+                    twemoji.parse(postContent, {
+                        folder: 'svg',
+                        ext: '.svg'
+                    });
+                }
+            }, 0); 
+        }
+
+        // Jalankan di kedua event untuk jaminan eksekusi
+        document.addEventListener('DOMContentLoaded', runTwemoji);
+        document.addEventListener('astro:page-load', runTwemoji);
+    </script>
+</Layout>

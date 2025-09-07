@@ -9,6 +9,16 @@
     "astro": "astro"
   },
   "dependencies": {
-    "astro": "^5.13.5"
+    "@astrojs/svelte": "^7.1.0",
+    "@supabase/ssr": "^0.7.0",
+    "@supabase/supabase-js": "^2.57.0",
+    "@tailwindcss/vite": "^4.1.13",
+    "@types/marked": "^6.0.0",
+    "astro": "^5.13.5",
+    "easymde": "^2.20.0",
+    "marked": "^16.2.1",
+    "svelte": "^5.38.7",
+    "tailwindcss": "^4.1.13",
+    "typescript": "^5.9.2"
   }
 }

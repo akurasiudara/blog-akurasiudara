@@ -1,0 +1,106 @@
+/* --- Styling Konten Artikel Markdown --- */
+
+/* Base font & spacing */
+.prose {
+    font-size: 1.1rem;
+    line-height: 1.8;
+}
+
+/* Headings */
+.prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6 {
+    font-weight: 700;
+    margin-top: 2em;
+    margin-bottom: 1em;
+}
+.prose h1 { font-size: 2.5em; }
+.prose h2 { font-size: 2em; border-bottom: 1px solid var(--bs-border-color); padding-bottom: 0.3em; }
+.prose h3 { font-size: 1.75em; }
+.prose h4 { font-size: 1.5em; }
+
+/* Paragraf & Link */
+.prose p {
+    margin-bottom: 1.25em;
+}
+.prose a {
+    text-decoration: underline;
+    text-decoration-color: var(--bs-warning);
+    text-decoration-thickness: 2px;
+}
+
+/* Lists (ul, ol) */
+.prose ul, .prose ol {
+    padding-left: 2em;
+    margin-bottom: 1.25em;
+}
+.prose li {
+    margin-bottom: 0.5em;
+}
+.prose li > ul, .prose li > ol {
+    margin-top: 0.5em;
+}
+
+/* Blockquotes */
+.prose blockquote {
+    margin: 1.5em 0;
+    padding: 0.5em 1.5em;
+    border-left: 4px solid var(--bs-warning);
+    background-color: var(--bs-tertiary-bg);
+    color: var(--bs-secondary-color);
+}
+.prose blockquote p {
+    margin-bottom: 0;
+}
+
+/* Code Blocks & Inline Code */
+.prose code {
+    background-color: var(--bs-tertiary-bg);
+    color: var(--bs-danger-text-emphasis);
+    padding: 0.2em 0.4em;
+    border-radius: 6px;
+    font-size: 0.9em;
+}
+.prose pre {
+    padding: 1em;
+    margin: 1.5em 0;
+    background-color: var(--bs-tertiary-bg);
+    border: 1px solid var(--bs-border-color);
+    border-radius: 8px;
+    overflow-x: auto;
+}
+.prose pre code {
+    background-color: transparent;
+    padding: 0;
+    border-radius: 0;
+    font-size: 0.9em;
+}
+
+/* Tables */
+.prose table {
+    width: 100%;
+    margin: 1.5em 0;
+    border-collapse: collapse;
+}
+.prose th, .prose td {
+    border: 1px solid var(--bs-border-color);
+    padding: 0.75em 1em;
+}
+.prose thead {
+    background-color: var(--bs-tertiary-bg);
+}
+.prose thead th {
+    font-weight: 600;
+}
+
+/* Images */
+.prose img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin: 1.5em 0;
+}
+
+/* Horizontal Rules */
+.prose hr {
+    margin: 3em 0;
+    border-top: 1px solid var(--bs-border-color);
+}

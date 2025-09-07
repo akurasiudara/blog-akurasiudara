@@ -1,0 +1,19 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Dashboard from '../components/Dashboard.svelte';
+import { createSupabaseServerClient } from '../lib/supabase-server';
+
+// PERBAIKAN: Beritahu Astro untuk tidak membuat halaman ini menjadi statis
+export const prerender = false;
+
+const supabase = createSupabaseServerClient(Astro.cookies);
+
+const { data: { session } } = await supabase.auth.getSession();
+
+if (!session) {
+    return Astro.redirect('/login');
+}
+---
+<Layout title="Dashboard">
+    <Dashboard client:load />
+</Layout>

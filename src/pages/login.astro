@@ -1,0 +1,12 @@
+---
+import Layout from '../layouts/Layout.astro';
+import LoginForm from '../components/LoginForm.svelte';
+---
+<Layout title="Login">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-4">
+            <h1 class="display-5 fw-bold text-center mb-4">Login Admin</h1>
+            <LoginForm client:load />
+        </div>
+    </div>
+</Layout>

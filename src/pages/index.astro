@@ -1,16 +1,208 @@
 ---
+import Layout from '../layouts/Layout.astro';
+import { supabase } from '../lib/supabase';
+import { marked } from 'marked';
 
+// URL Thumbnail Default
+const DEFAULT_THUMBNAIL = 'https://images.unsplash.com/photo-1714464702947-36fb39f3bde4?q=80&w=880&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D';
+
+// Fungsi untuk format tanggal
+function formatDate(dateString) {
+	const options = { day: '2-digit', month: 'long', year: 'numeric' };
+	return new Date(dateString).toLocaleDateString('id-ID', options);
+}
+
+// Fungsi untuk estimasi waktu baca
+function calculateReadingTime(content) {
+    if (!content) return '1 min';
+    const wordsPerMinute = 200;
+    const words = content.trim().split(/\s+/).length;
+    return `${Math.ceil(words / wordsPerMinute)} min`;
+}
+
+// Mengambil semua data dari Supabase
+const [linksRes, productsRes, postsRes] = await Promise.all([
+    supabase.from('links').select('*').order('sort_order'),
+    supabase.from('products').select('*, slug'),
+    supabase.from('posts').select('*, content, category').limit(3).order('created_at', { ascending: false })
+]);
+
+const links = linksRes.data;
+
+// Memproses data produk untuk mengubah deskripsi menjadi HTML
+const products = await Promise.all(productsRes.data?.map(async (product) => ({
+    ...product,
+    descriptionHtml: product.description ? await marked.parse(product.description) : '<p></p>'
+})) || []);
+
+// Memproses data postingan untuk menambahkan thumbnail default dan waktu baca
+const posts = postsRes.data?.map(post => ({
+    ...post,
+    image_url: post.image_url || DEFAULT_THUMBNAIL,
+    readingTime: calculateReadingTime(post.content)
+}));
 ---
+<Layout title="Beranda - Akurasi Udara">
+	<div class="text-center mb-5">
+		<img class="rounded-circle shadow-lg" width="120" height="120" src="/images/Palestine.png" alt="Foto profil">
+		<h1 class="display-4 fw-bold mt-4">Akurasi Udara</h1>
+		<p class="lead text-secondary">Selamat datang di ruang digital saya.</p>
+	</div>
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+	<div class="row justify-content-center">
+		<div class="col-lg-8">
+			<section class="d-grid gap-3 mb-5">
+				{links?.map(link => (
+					<a href={link.url} target="_blank" class="btn btn-warning btn-lg">{link.title}</a>
+				))}
+			</section>
+
+			<section class="mb-5">
+				<h2 class="display-6 fw-bold border-bottom pb-2 mb-4">Jualan Saya</h2>
+				<div class="row row-cols-2 g-2 g-md-4">
+					{products?.map(product => (
+						<div class="col">
+							<div class="card h-100 shadow-sm product-card border-light-subtle" 
+								 style="cursor: pointer;"
+								 data-bs-toggle="modal" 
+								 data-bs-target="#productModal"
+								 data-name={product.name} 
+								 data-image={product.image_url} 
+								 data-description-html={product.descriptionHtml}
+								 data-link={product.whatsapp_link}
+								 data-slug={product.slug}
+							>
+								<img src={product.image_url} class="card-img-top" alt={product.name} style="height: 120px; object-fit: cover;">
+								<div class="card-body">
+									<h5 class="card-title text-center small">{product.name}</h5>
+								</div>
+							</div>
+						</div>
+					))}
+				</div>
+			</section>
+
+			<section>
+				<h2 class="display-6 fw-bold border-bottom pb-2 mb-4">Tulisan Terbaru</h2>
+				<div class="list-group list-group-flush">
+					{posts?.map((post, index) => (
+						<a href={`/blog/${post.slug}`} class="list-group-item list-group-item-action bg-transparent px-0 py-3">
+							<div class="d-flex w-100 align-items-center">
+								<span class="fs-4 me-3 text-secondary">{(index + 1).toString().padStart(2, '0')}.</span>
+								<div class="flex-grow-1">
+									<h5 class="mb-1">{post.title}</h5>
+									<div class="d-flex align-items-center text-body-secondary small mt-2">
+										<span class="me-3"><i class="bi bi-tag-fill me-1"></i> {post.category || 'Umum'}</span>
+										<span class="me-3"><i class="bi bi-calendar-event me-1"></i> {formatDate(post.created_at)}</span>
+										<span><i class="bi bi-eye-fill me-1"></i> {post.readingTime}</span>
+									</div>
+								</div>
+							</div>
+						</a>
+					))}
+				</div>
+                <div class="text-center mt-4">
+                    <a href="/blog" class="btn btn-outline-warning">Lihat Postingan Lainnya</a>
+                </div>
+			</section>
+		</div>
+	</div>
+
+	<div class="modal fade" id="productModal" tabindex="-1">
+		<div class="modal-dialog modal-dialog-centered modal-xl">
+			<div class="modal-content overflow-hidden">
+				<div class="row g-0 align-items-stretch">
+					<div class="col-md-6 modal-image-col">
+						<div class="aspect-ratio-container">
+							<img id="modal-product-image" src="" class="aspect-ratio-item" alt="">
+						</div>
+					</div>
+					<div class="col-md-6 d-flex flex-column p-4 modal-text-col">
+						<div class="d-flex justify-content-between align-items-start">
+							<h4 class="modal-title mb-3" id="modal-product-name"></h4>
+							<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+						</div>
+						<div class="modal-description-wrapper prose">
+							<div id="modal-product-description"></div>
+						</div>
+						<div class="d-flex gap-2 mt-auto pt-3">
+							<a id="modal-product-slug-link" href="#" class="btn btn-warning w-100 btn-lg">Lihat Selengkapnya</a>
+							<a id="modal-product-wa-link" href="#" target="_blank" class="btn btn-success btn-lg flex-shrink-0">
+								<i class="bi bi-whatsapp"></i>
+							</a>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</Layout>
+
+<script is:inline>
+	document.addEventListener('DOMContentLoaded', () => {
+		const productModal = document.getElementById('productModal');
+		productModal.addEventListener('show.bs.modal', event => {
+			const card = event.relatedTarget;
+			const dataset = card.dataset;
+			const modalTitle = productModal.querySelector('.modal-title');
+			const modalImage = productModal.querySelector('#modal-product-image');
+			const modalDescription = productModal.querySelector('#modal-product-description');
+			const modalSlugLink = productModal.querySelector('#modal-product-slug-link');
+			const modalWaLink = productModal.querySelector('#modal-product-wa-link');
+			
+			modalTitle.textContent = dataset.name;
+			modalImage.src = dataset.image;
+			modalDescription.innerHTML = dataset.descriptionHtml; // Menggunakan innerHTML
+			modalWaLink.href = dataset.link;
+			modalSlugLink.href = `/products/${dataset.slug}`;
+		});
+	});
+</script>
+
+<style>
+	/* Aturan Rasio Aspek Gambar Modal (Berlaku di semua layar) */
+	.aspect-ratio-container {
+		position: relative;
+		width: 100%;
+		padding-bottom: 100%;
+		overflow: hidden;
+	}
+	.aspect-ratio-item {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+	}
+	/* Aturan untuk Mobile (max-width: 767.98px) */
+	@media (max-width: 767.98px) {
+		.modal-dialog {
+			max-height: 85vh;
+		}
+		.modal-content {
+			overflow-y: auto;
+		}
+		.modal-description-wrapper {
+			overflow-y: auto;
+			max-height: 150px;
+		}
+	}
+	/* Aturan untuk Desktop (min-width: 768px) */
+	@media (min-width: 768px) {
+		.row.align-items-stretch {
+			align-items: stretch;
+		}
+		.modal-image-col .aspect-ratio-container {
+			height: 100%;
+		}
+		.modal-text-col {
+			height: 500px;
+		}
+		.modal-description-wrapper {
+			flex-grow: 1;
+			overflow-y: auto;
+			margin-bottom: 1rem;
+		}
+	}
+</style>

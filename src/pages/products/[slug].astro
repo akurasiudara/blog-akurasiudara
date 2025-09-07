@@ -1,0 +1,50 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { supabase } from '../../lib/supabase';
+import ShareButtons from '../../components/ShareButtons.astro';
+import { marked } from 'marked';
+import '../../styles/markdown.css';
+
+export async function getStaticPaths() {
+	const { data: products } = await supabase.from('products').select('slug');
+	return products?.filter(p => p.slug).map(({ slug }) => ({
+		params: { slug }
+	})) || [];
+}
+
+const { slug } = Astro.params;
+const { data: product } = await supabase.from('products').select('*').eq('slug', slug).single();
+
+if (!product) {
+    return Astro.redirect('/404');
+}
+
+// PERBAIKAN: Menggunakan nama variabel 'renderedContent' agar konsisten
+const renderedContent = product.description ? await marked.parse(product.description) : '';
+
+const pageUrl = Astro.url.href;
+const shareText = `Lihat produk ini: ${product.name}`;
+---
+<Layout title={product.name}>
+	<div class="row justify-content-center">
+		<div class="col-lg-8">
+			<header class="mb-4">
+				<h1 class="display-5 fw-bold">{product.name}</h1>
+			</header>
+			<img src={product.image_url} class="img-fluid rounded-3 mb-4 shadow-sm" alt={product.name} />
+			
+			<article class="prose">
+				<Fragment set:html={renderedContent} />
+			</article>
+
+			<div class="mt-5 d-grid gap-2 col-md-8 mx-auto">
+				<a href={product.whatsapp_link} target="_blank" class="btn btn-primary btn-lg">
+					Pesan via WhatsApp
+				</a>
+			</div>
+
+            <hr class="my-5">
+            <ShareButtons url={pageUrl} text={shareText} />
+		</div>
+	</div>
+</Layout>
