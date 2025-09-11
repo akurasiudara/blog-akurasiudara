@@ -44,7 +44,11 @@ const posts = postsRes.data?.map(post => ({
 ---
 <Layout title="Beranda - Akurasi Udara">
 	<div class="text-center mb-5">
-		<img class="rounded-circle shadow-lg" width="120" height="120" src="/images/Palestine.png" alt="Foto profil">
+		<div class="g-one-wrapper mx-auto">
+			<div class="profile-container">
+				<img class="rounded-circle shadow-lg" width="120" height="120" src="/images/Palestine.png" alt="Foto profil">
+			</div>
+		</div>
 		<h1 class="display-4 fw-bold mt-4">Akurasi Udara</h1>
 		<p class="lead text-secondary">Selamat datang di ruang digital saya.</p>
 	</div>
@@ -160,6 +164,97 @@ const posts = postsRes.data?.map(post => ({
 </script>
 
 <style>
+	Tentu, mari kita perbaiki. Masalah ini terjadi karena properti mask di CSS sangat kompleks dan terkadang tidak berinteraksi dengan baik di semua browser atau konteks.
+
+Kita akan menggunakan pendekatan yang lebih sederhana dan lebih andal untuk membuat efek ring yang sama, yaitu dengan menumpuk gradient di atas warna solid.
+
+## 1. Perbarui HTML di index.astro
+
+Kita akan sedikit menyederhanakan struktur HTML pembungkus gambar profil Anda.
+
+Ganti bagian profil di src/pages/index.astro dengan ini:
+Cuplikan kode
+
+---
+// ... (kode frontmatter Anda tidak berubah)
+---
+<Layout title="Beranda - Akurasi Udara">
+	<div class="text-center mb-5">
+		<div class="g-one-wrapper mx-auto">
+			<img class="rounded-circle shadow-lg" width="120" height="120" src="/images/Palestine.png" alt="Foto profil">
+		</div>
+		<h1 class="display-4 fw-bold mt-4">Akurasi Udara</h1>
+		<p class="lead text-secondary">Selamat datang di ruang digital saya.</p>
+	</div>
+    </Layout>
+
+## 2. Perbarui CSS di Layout.astro
+
+Ini adalah perbaikan utamanya. Ganti seluruh aturan CSS "Google One" yang sebelumnya di dalam <style is:global> dengan kode baru yang lebih stabil di bawah ini.
+
+src/layouts/Layout.astro (hanya bagian <style is:global>)
+Cuplikan kode
+
+// ... (kode layout Anda tidak berubah)
+<style is:global>
+	/* ... (gaya CSS Anda yang lain tidak berubah) ... */
+
+	/* --- PERBAIKAN: Efek Lingkaran Google One (Lebih Stabil) --- */
+	@keyframes spin {
+		from { transform: rotate(0deg); }
+		to { transform: rotate(360deg); }
+	}
+
+	.g-one-wrapper {
+		width: 132px; /* Lebar gambar (120px) + border (6px*2) */
+		height: 132px;
+		position: relative;
+		padding: 6px; /* Jarak antara ring dan gambar */
+		border-radius: 50%;
+	}
+
+	/* Lingkaran luar yang berputar */
+	.g-one-wrapper::before {
+		content: '';
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background: conic-gradient(
+			#ea4335, #fbbc05, #34a853, #4285f4, #ea4335
+		);
+		border-radius: 50%;
+		animation: spin 8s linear infinite;
+		transition: animation-duration 0.5s ease;
+	}
+
+	/* Lingkaran dalam untuk menutupi bagian tengah (menciptakan efek "lubang") */
+	.g-one-wrapper::after {
+		content: '';
+		position: absolute;
+		top: 3px; /* Setengah dari ketebalan ring */
+		left: 3px;
+		right: 3px;
+		bottom: 3px;
+		background: var(--bs-body-bg); /* Warna latar belakang situs */
+		border-radius: 50%;
+	}
+
+	.g-one-wrapper:hover::before {
+		animation-duration: 1s; /* Animasi lebih cepat saat hover */
+	}
+
+	.g-one-wrapper img {
+		position: relative; /* Pastikan gambar di atas pseudo-elements */
+		z-index: 2;
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		border-radius: 50%;
+	}
+
+
 	/* Aturan Rasio Aspek Gambar Modal (Berlaku di semua layar) */
 	.aspect-ratio-container {
 		position: relative;
