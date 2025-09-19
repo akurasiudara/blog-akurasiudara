@@ -13,14 +13,19 @@ export async function getStaticPaths() {
 }
 
 const { slug } = Astro.params;
+// Ambil semua data, termasuk kolom 'images' yang baru
 const { data: product } = await supabase.from('products').select('*').eq('slug', slug).single();
 
 if (!product) {
     return Astro.redirect('/404');
 }
 
-// PERBAIKAN: Menggunakan nama variabel 'renderedContent' agar konsisten
-const renderedContent = product.description ? await marked.parse(product.description) : '';
+// Pastikan 'images' adalah array, jika tidak, buat array dari gambar lama
+const imageList = Array.isArray(product.images) && product.images.length > 0
+    ? product.images
+    : [product.image_url_old || 'https://via.placeholder.com/800x600.png?text=No+Image'];
+
+const renderedDescription = product.description ? await marked.parse(product.description) : '';
 
 const pageUrl = Astro.url.href;
 const shareText = `Lihat produk ini: ${product.name}`;
@@ -31,7 +36,38 @@ const shareText = `Lihat produk ini: ${product.name}`;
 			<header class="mb-4">
 				<h1 class="display-5 fw-bold">{product.name}</h1>
 			</header>
-			<img src={product.image_url} class="img-fluid rounded-3 mb-4 shadow-sm" alt={product.name} />
+
+			<div id="productImageSlider" class="carousel slide shadow-sm rounded-3 mb-4" data-bs-ride="carousel">
+				<div class="carousel-indicators">
+					{imageList.map((_, index) => (
+						<button
+							type="button"
+							data-bs-target="#productImageSlider"
+							data-bs-slide-to={index}
+							class={index === 0 ? 'active' : ''}
+							aria-current={index === 0 ? 'true' : 'false'}
+							aria-label={`Slide ${index + 1}`}
+						></button>
+					))}
+				</div>
+
+				<div class="carousel-inner rounded-3">
+					{imageList.map((imageUrl, index) => (
+						<div class={`carousel-item ${index === 0 ? 'active' : ''}`}>
+							<img src={imageUrl} class="d-block w-100" alt={`Gambar produk ${index + 1}`} style="aspect-ratio: 4 / 3; object-fit: cover;">
+						</div>
+					))}
+				</div>
+
+				<button class="carousel-control-prev" type="button" data-bs-target="#productImageSlider" data-bs-slide="prev">
+					<span class="carousel-control-prev-icon" aria-hidden="true"></span>
+					<span class="visually-hidden">Previous</span>
+				</button>
+				<button class="carousel-control-next" type="button" data-bs-target="#productImageSlider" data-bs-slide="next">
+					<span class="carousel-control-next-icon" aria-hidden="true"></span>
+					<span class="visually-hidden">Next</span>
+				</button>
+			</div>
 			
 			<article class="prose">
 				<Fragment set:html={renderedContent} />
