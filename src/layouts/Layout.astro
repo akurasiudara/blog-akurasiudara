@@ -112,92 +112,36 @@ interface Props {
   </body>
 </html>
 <style is:global>
-  body {
-    font-family: "Rubik", sans-serif;
-  }
-  .card {
-    transition:
-      transform 0.3s ease,
-      box-shadow 0.3s ease;
-    overflow: hidden;
-  }
-  .card:hover {
-    transform: translateY(-5px);
-    box-shadow: var(--bs-box-shadow-lg) !important;
-  }
-  .card .card-img-top,
-  .card .img-fluid {
-    transition: transform 0.3s ease;
-  }
-  .card:hover .card-img-top,
-  .card .img-fluid {
-    transform: scale(1.05);
-  }
-  #theme-toggle {
-    border: none;
-    background-color: transparent;
-  }
-  #theme-toggle:focus {
-    box-shadow: none;
-  }
+	/* Efek hover pada card: mengangkat dan memperbesar gambar */
+	.card { 
+        transition: transform 0.3s ease, box-shadow 0.3s ease; 
+        overflow: hidden; 
+    }
+	.card:hover { 
+        transform: translateY(-5px); 
+        box-shadow: var(--bs-box-shadow-lg) !important; 
+    }
+	.card .card-img-top, .card .img-fluid { 
+        transition: transform 0.3s ease; 
+    }
+	.card:hover .card-img-top, .card:hover .img-fluid { 
+        transform: scale(1.05); 
+    }
 
-  /* PERBAIKAN: Aturan hover untuk tombol kuning */
-  .btn-warning {
-    --bs-btn-hover-bg: #d39e00; /* Kuning tua */
-    --bs-btn-hover-border-color: #c69500;
-    --bs-btn-hover-color: #000; /* Teks hitam */
-  }
+	/* Gaya untuk tombol light/dark mode agar tidak memiliki border */
+	#theme-toggle { 
+        border: none; 
+        background-color: transparent; 
+    }
+	#theme-toggle:focus { 
+        box-shadow: none; 
+    }
 
-  /* --- CSS untuk Animasi Hamburger Menu --- */
-  .hamburger-button {
-    border: none;
-    padding: 0.25rem 0.5rem;
-  }
-  .hamburger-button:focus,
-  .hamburger-button:focus-visible {
-    outline: none;
-    box-shadow: none;
-  }
-  .hamburger-icon {
-    position: relative;
-    width: 24px;
-    height: 18px;
-  }
-  .hamburger-icon span {
-    display: block;
-    position: absolute;
-    height: 3px;
-    width: 100%;
-    background: currentColor;
-    border-radius: 3px;
-    opacity: 1;
-    left: 0;
-    transform: rotate(0deg);
-    transition: 0.25s ease-in-out;
-  }
-  .hamburger-icon span:nth-child(1) {
-    top: 0px;
-  }
-  .hamburger-icon span:nth-child(2) {
-    top: 7px;
-    width: 60%;
-    left: auto;
-    right: 0;
-  }
-  .hamburger-icon span:nth-child(3) {
-    top: 14px;
-  }
-  /* Animasi saat menu terbuka */
-  .hamburger-button[aria-expanded="true"] .hamburger-icon span:nth-child(1) {
-    top: 7px;
-    transform: rotate(135deg);
-  }
-  .hamburger-button[aria-expanded="true"] .hamburger-icon span:nth-child(2) {
-    opacity: 0;
-    left: -60px;
-  }
-  .hamburger-button[aria-expanded="true"] .hamburger-icon span:nth-child(3) {
-    top: 7px;
-    transform: rotate(-135deg);
-  }
+	/* Aturan hover umum untuk semua link (termasuk navbar) agar menjadi kuning */
+	:root[data-bs-theme="dark"] a:hover,
+	:root[data-bs-theme="dark"] .nav-link:hover,
+	:root[data-bs-theme="light"] a:hover,
+	:root[data-bs-theme="light"] .nav-link:hover {
+		color: var(--bs-yellow) !important;
+	}
 </style>

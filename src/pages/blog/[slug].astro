@@ -5,11 +5,13 @@ import { marked } from 'marked';
 import ShareButtons from '../../components/ShareButtons.astro';
 import '../../styles/markdown.css';
 
+// Fungsi untuk format tanggal (dd mmmm yyyy)
 function formatDate(dateString) {
 	const options = { day: '2-digit', month: 'long', year: 'numeric' };
 	return new Date(dateString).toLocaleDateString('id-ID', options);
 }
 
+// Fungsi untuk estimasi waktu baca
 function calculateReadingTime(content) {
     if (!content) return '1 min';
     const wordsPerMinute = 200;
@@ -17,12 +19,26 @@ function calculateReadingTime(content) {
     return `${Math.ceil(words / wordsPerMinute)} min`;
 }
 
-export async function getStaticPaths() { const { data: posts } = await supabase.from('posts').select('slug'); return posts?.map(({ slug }) => ({ params: { slug } })) || []; }
+// Mengambil semua slug untuk membuat halaman statis saat build
+export async function getStaticPaths() { 
+    const { data: posts } = await supabase.from('posts').select('slug'); 
+    return posts?.map(({ slug }) => ({ params: { slug } })) || []; 
+}
+
+// Mengambil data lengkap untuk postingan yang sedang dibuka
 const { slug } = Astro.params;
 const { data: post } = await supabase.from('posts').select('*, image_url, content, category').eq('slug', slug).single();
+
+// Jika post tidak ditemukan, arahkan ke halaman 404
+if (!post) {
+    return Astro.redirect('/404');
+}
+
+// Memproses konten dari Markdown ke HTML
 const renderedContent = post ? await marked.parse(post.content) : '';
 const readingTime = calculateReadingTime(post?.content);
 
+// Menyiapkan variabel untuk tombol share
 const pageUrl = Astro.url.href;
 const shareText = `Baca "${post?.title}" di Akurasi Udara:`;
 ---
@@ -31,13 +47,17 @@ const shareText = `Baca "${post?.title}" di Akurasi Udara:`;
 		<div class="col-lg-8">
 			<header class="mb-4">
 				<h1 class="display-5 fw-bold">{post?.title}</h1>
+				{/* Menampilkan metadata lengkap */}
 				<div class="d-flex align-items-center text-secondary mb-3">
-					<span class="me-3"><i class="bi bi-tag-fill me-1"></i> {post?.category || 'Umum'}</span>
+					<a href={`/blog/kategori/${post?.category}`} class="text-reset text-decoration-none me-3">
+						<i class="bi bi-tag-fill me-1"></i> {post?.category || 'Umum'}
+					</a>
 					<span class="me-3"><i class="bi bi-calendar-event me-1"></i> {formatDate(post?.created_at)}</span>
 					<span><i class="bi bi-eye-fill me-1"></i> {readingTime}</span>
 				</div>
 			</header>
-			<img src={post?.image_url} class="img-fluid rounded-3 mb-4 shadow-sm" alt="" />
+			
+			<img src={post?.image_url} class="img-fluid rounded-3 mb-4 shadow-sm" alt={`Gambar sampul untuk ${post.title}`} />
 			
 			<article class="prose" id="post-content">
 				<Fragment set:html={renderedContent} />
@@ -50,9 +70,9 @@ const shareText = `Baca "${post?.title}" di Akurasi Udara:`;
     <script is:inline src="/js/twemoji.min.js"></script>
     
     <script is:inline>
-        // PERBAIKAN FINAL: Menambahkan penundaan untuk memastikan konten siap
+        // Skrip yang andal untuk menjalankan konversi emoji
         function runTwemoji() {
-            // Beri jeda sesaat (0 milidetik) untuk memastikan DOM sudah di-render
+            // Beri jeda sesaat untuk memastikan konten Astro sudah dirender
             setTimeout(() => {
                 const postContent = document.getElementById('post-content');
                 if (typeof twemoji !== 'undefined' && postContent) {

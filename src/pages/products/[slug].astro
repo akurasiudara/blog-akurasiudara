@@ -13,19 +13,19 @@ export async function getStaticPaths() {
 }
 
 const { slug } = Astro.params;
-// Ambil semua data, termasuk kolom 'images' yang baru
 const { data: product } = await supabase.from('products').select('*').eq('slug', slug).single();
 
 if (!product) {
     return Astro.redirect('/404');
 }
 
-// Pastikan 'images' adalah array, jika tidak, buat array dari gambar lama
+// Use the same fallback logic as the blog posts for consistency
 const imageList = Array.isArray(product.images) && product.images.length > 0
     ? product.images
     : [product.image_url_old || 'https://via.placeholder.com/800x600.png?text=No+Image'];
 
-const renderedDescription = product.description ? await marked.parse(product.description) : '';
+// CORRECTED: The variable is now named renderedContent
+const renderedContent = product.description ? await marked.parse(product.description) : '';
 
 const pageUrl = Astro.url.href;
 const shareText = `Lihat produk ini: ${product.name}`;
@@ -50,7 +50,6 @@ const shareText = `Lihat produk ini: ${product.name}`;
 						></button>
 					))}
 				</div>
-
 				<div class="carousel-inner rounded-3">
 					{imageList.map((imageUrl, index) => (
 						<div class={`carousel-item ${index === 0 ? 'active' : ''}`}>
@@ -58,7 +57,6 @@ const shareText = `Lihat produk ini: ${product.name}`;
 						</div>
 					))}
 				</div>
-
 				<button class="carousel-control-prev" type="button" data-bs-target="#productImageSlider" data-bs-slide="prev">
 					<span class="carousel-control-prev-icon" aria-hidden="true"></span>
 					<span class="visually-hidden">Previous</span>

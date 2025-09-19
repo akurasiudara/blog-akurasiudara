@@ -30,10 +30,19 @@ const [linksRes, productsRes, postsRes] = await Promise.all([
 const links = linksRes.data;
 
 // Memproses data produk untuk mengubah deskripsi menjadi HTML
-const products = await Promise.all(productsRes.data?.map(async (product) => ({
-    ...product,
-    descriptionHtml: product.description ? await marked.parse(product.description) : '<p></p>'
-})) || []);
+const products = await Promise.all(productsRes.data?.map(async (product) => {
+    // Tentukan gambar utama: gambar pertama dari array 'images', atau gambar lama, atau placeholder
+    const primaryImage = (Array.isArray(product.images) && product.images.length > 0)
+        ? product.images[0]
+        : product.image_url_old || 'https://via.placeholder.com/400x300.png?text=No+Image';
+
+    return {
+        ...product,
+        primaryImage, // Simpan gambar utama di properti baru
+        descriptionHtml: product.description ? await marked.parse(product.description) : '<p></p>'
+    };
+}) || []);
+
 
 // Memproses data postingan untuk menambahkan thumbnail default dan waktu baca
 const posts = postsRes.data?.map(post => ({
@@ -57,7 +66,7 @@ const posts = postsRes.data?.map(post => ({
 		<div class="col-lg-8">
 			<section class="d-grid gap-3 mb-5">
 				{links?.map(link => (
-					<a href={link.url} target="_blank" class="btn btn-warning btn-lg">{link.title}</a>
+					<a href={link.url} target="_blank" class="link-block">{link.title}</a>
 				))}
 			</section>
 
@@ -71,13 +80,11 @@ const posts = postsRes.data?.map(post => ({
 								 data-bs-toggle="modal" 
 								 data-bs-target="#productModal"
 								 data-name={product.name} 
-								 data-image={product.image_url} 
-								 data-description-html={product.descriptionHtml}
+								 data-image={product.primaryImage} data-description-html={product.descriptionHtml}
 								 data-link={product.whatsapp_link}
 								 data-slug={product.slug}
 							>
-								<img src={product.image_url} class="card-img-top" alt={product.name} style="height: 120px; object-fit: cover;">
-								<div class="card-body">
+								<img src={product.primaryImage} class="card-img-top" alt={product.name} style="height: 120px; object-fit: cover;"> <div class="card-body">
 									<h5 class="card-title text-center small">{product.name}</h5>
 								</div>
 							</div>
@@ -90,23 +97,29 @@ const posts = postsRes.data?.map(post => ({
 				<h2 class="display-6 fw-bold border-bottom pb-2 mb-4">Tulisan Terbaru</h2>
 				<div class="list-group list-group-flush">
 					{posts?.map((post, index) => (
-						<a href={`/blog/${post.slug}`} class="list-group-item list-group-item-action bg-transparent px-0 py-3">
+						<div class="list-group-item bg-transparent px-0 py-3">
 							<div class="d-flex w-100 align-items-center">
 								<span class="fs-4 me-3 text-secondary">{(index + 1).toString().padStart(2, '0')}.</span>
 								<div class="flex-grow-1">
-									<h5 class="mb-1">{post.title}</h5>
+									<h5 class="mb-1">
+										<a href={`/blog/${post.slug}`} class="text-reset text-decoration-none">
+											{post.title}
+										</a>
+									</h5>
 									<div class="d-flex align-items-center text-body-secondary small mt-2">
-										<span class="me-3"><i class="bi bi-tag-fill me-1"></i> {post.category || 'Umum'}</span>
+										<a href={`/blog/kategori/${post.category}`} class="text-reset text-decoration-none me-3">
+											<i class="bi bi-tag-fill me-1"></i> {post.category || 'Umum'}
+										</a>
 										<span class="me-3"><i class="bi bi-calendar-event me-1"></i> {formatDate(post.created_at)}</span>
 										<span><i class="bi bi-eye-fill me-1"></i> {post.readingTime}</span>
 									</div>
 								</div>
 							</div>
-						</a>
+						</div>
 					))}
 				</div>
                 <div class="text-center mt-4">
-                    <a href="/blog" class="btn btn-outline-warning">Lihat Postingan Lainnya</a>
+                    <a href="/blog" class="btn btn-link text-secondary text-decoration-none">Lihat Postingan Lainnya &rarr;</a>
                 </div>
 			</section>
 		</div>
@@ -163,41 +176,7 @@ const posts = postsRes.data?.map(post => ({
 	});
 </script>
 
-<style>
-	Tentu, mari kita perbaiki. Masalah ini terjadi karena properti mask di CSS sangat kompleks dan terkadang tidak berinteraksi dengan baik di semua browser atau konteks.
-
-Kita akan menggunakan pendekatan yang lebih sederhana dan lebih andal untuk membuat efek ring yang sama, yaitu dengan menumpuk gradient di atas warna solid.
-
-## 1. Perbarui HTML di index.astro
-
-Kita akan sedikit menyederhanakan struktur HTML pembungkus gambar profil Anda.
-
-Ganti bagian profil di src/pages/index.astro dengan ini:
-Cuplikan kode
-
----
-// ... (kode frontmatter Anda tidak berubah)
----
-<Layout title="Beranda - Akurasi Udara">
-	<div class="text-center mb-5">
-		<div class="g-one-wrapper mx-auto">
-			<img class="rounded-circle shadow-lg" width="120" height="120" src="/images/Palestine.png" alt="Foto profil">
-		</div>
-		<h1 class="display-4 fw-bold mt-4">Akurasi Udara</h1>
-		<p class="lead text-secondary">Selamat datang di ruang digital saya.</p>
-	</div>
-    </Layout>
-
-## 2. Perbarui CSS di Layout.astro
-
-Ini adalah perbaikan utamanya. Ganti seluruh aturan CSS "Google One" yang sebelumnya di dalam <style is:global> dengan kode baru yang lebih stabil di bawah ini.
-
-src/layouts/Layout.astro (hanya bagian <style is:global>)
-Cuplikan kode
-
-// ... (kode layout Anda tidak berubah)
 <style is:global>
-	/* ... (gaya CSS Anda yang lain tidak berubah) ... */
 
 	/* --- PERBAIKAN: Efek Lingkaran Google One (Lebih Stabil) --- */
 	@keyframes spin {
@@ -254,6 +233,27 @@ Cuplikan kode
 		border-radius: 50%;
 	}
 
+	/* --- Gaya untuk Tombol Link Halaman Utama --- */
+	.link-block {
+		display: block;
+		width: 100%;
+		padding: 0.75rem 1rem;
+		border-radius: 9999px; /* Sudut tumpul */
+		text-decoration: none;
+		font-weight: 500;
+		font-size: 1.1rem;
+		text-align: center;
+		transition: all 0.2s ease-in-out;
+		border: 1px solid var(--bs-border-color);
+		color: var(--bs-secondary-color);
+		background-color: transparent;
+	}
+	.link-block:hover {
+		transform: translateY(-2px);
+		box-shadow: var(--bs-box-shadow-sm);
+		color: var(--bs-body-color);
+		border-color: var(--bs-yellow);
+	}
 
 	/* Aturan Rasio Aspek Gambar Modal (Berlaku di semua layar) */
 	.aspect-ratio-container {

@@ -2,7 +2,7 @@
 import Layout from '../../layouts/Layout.astro';
 import { supabase } from '../../lib/supabase';
 
-const DEFAULT_THUMBNAIL = 'https://images.unsplash.com/photo-1714464702947-36fb39f3bde4?q=80&w=880&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D';
+const DEFAULT_THUMBNAIL = 'https://images.unsplash.com/photo-1714464702947-36fb39f3bde4?q=80&w=880&auto=format&fit=crop&ixlib-rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D';
 
 function formatDate(dateString) {
 	const options = { day: '2-digit', month: 'long', year: 'numeric' };
@@ -13,11 +13,9 @@ function calculateReadingTime(content) {
     if (!content) return '1 min';
     const wordsPerMinute = 200;
     const words = content.trim().split(/\s+/).length;
-    const time = Math.ceil(words / wordsPerMinute);
-    return `${time} min`;
+    return `${Math.ceil(words / wordsPerMinute)} min`;
 }
 
-// Ambil 'content' dan 'category'
 const { data } = await supabase.from('posts').select('*, image_url, content, category').order('created_at', { ascending: false });
 
 const posts = data?.map(post => ({
@@ -25,12 +23,38 @@ const posts = data?.map(post => ({
     image_url: post.image_url || DEFAULT_THUMBNAIL,
     readingTime: calculateReadingTime(post.content)
 }));
+
+// PERBAIKAN: Hitung jumlah postingan untuk setiap kategori
+const categoryCounts = posts?.reduce((acc, post) => {
+    if (post.category) {
+        acc[post.category] = (acc[post.category] || 0) + 1;
+    }
+    return acc;
+}, {});
+const uniqueCategories = Object.keys(categoryCounts || {});
 ---
 <Layout title="Blog - Akurasi Udara">
 	<div class="text-center mb-5">
 		<h1 class="display-4 fw-bold">Blog</h1>
 		<p class="lead text-secondary">Kumpulan tulisan yang pernah saya buat.</p>
 	</div>
+
+	<div class="mb-5 text-center">
+		<h2 class="h4 mb-3">Telusuri Kategori</h2>
+		<div class="d-flex flex-wrap justify-content-center gap-3">
+			<a href="/blog" class="category-tag active">
+				Semua Postingan <span class="badge rounded-pill">{posts?.length}</span>
+			</a>
+			{uniqueCategories.map(category => (
+				<a href={`/blog/kategori/${category}`} class="category-tag">
+					{category} <span class="badge rounded-pill">{categoryCounts[category]}</span>
+				</a>
+			))}
+		</div>
+	</div>
+
+	<hr class="mb-5">
+
 	<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
 		{posts?.map(post => (
 			<div class="col">
@@ -41,7 +65,9 @@ const posts = data?.map(post => ({
 							<h5 class="card-title">{post.title}</h5>
 							<p class="card-text text-secondary flex-grow-1">{post.excerpt}</p>
 							<div class="d-flex align-items-center text-body-secondary small mt-auto pt-2">
-								<span class="me-3"><i class="bi bi-tag-fill me-1"></i> {post.category || 'Umum'}</span>
+								<a href={`/blog/kategori/${post.category}`} class="text-reset text-decoration-none me-3">
+									<i class="bi bi-tag-fill me-1"></i> {post.category || 'Umum'}
+								</a>
 								<span class="me-3 text-nowrap"><i class="bi bi-calendar-event me-1"></i> {formatDate(post.created_at)}</span>
 								<span class="ms-auto text-nowrap"><i class="bi bi-eye-fill me-1"></i> {post.readingTime}</span>
 							</div>
@@ -52,3 +78,42 @@ const posts = data?.map(post => ({
 		))}
 	</div>
 </Layout>
+
+<style>
+	/* PERBAIKAN: CSS Kustom untuk Tampilan Kategori */
+	.category-tag {
+		display: inline-flex;
+		align-items: center;
+		padding: 0.5rem 1rem;
+		border-radius: 9999px;
+		text-decoration: none;
+		font-weight: 500;
+		transition: all 0.2s ease-in-out;
+		border: 1px solid var(--bs-border-color);
+		color: var(--bs-secondary-color);
+	}
+	.category-tag .badge {
+		margin-left: 0.5rem;
+		background-color: var(--bs-secondary-bg);
+		color: var(--bs-secondary-color);
+	}
+	.category-tag:hover {
+		transform: translateY(-2px);
+		box-shadow: var(--bs-box-shadow-sm);
+		color: var(--bs-body-color);
+		border-color: var(--bs-yellow);
+	}
+	.category-tag.active {
+		background-color: var(--bs-yellow);
+		color: var(--bs-white);
+		border-color: var(--bs-yellow);
+	}
+	.category-tag.active .badge {
+		background-color: var(--bs-white);
+		color: var(--bs-yellow);
+	}
+	.category-tag.active:hover {
+		background-color: var(--bs-yellow)!important;
+		color: var(--bs-white)!important;
+	}
+</style>
