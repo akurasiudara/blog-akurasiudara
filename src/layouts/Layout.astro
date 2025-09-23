@@ -27,7 +27,11 @@ interface Props {
   </head>
 
   <body>
-    <nav class="navbar navbar-expand-md sticky-top bg-body-tertiary shadow-sm">
+    <nav
+      class="bg-body-tertiary
+        shadow-sm
+        navbar navbar-expand-md sticky-top"
+    >
       <div class="container">
         <a class="navbar-brand" href="/">Akurasi Udara</a>
 
@@ -48,7 +52,8 @@ interface Props {
         </button>
 
         <div class="collapse navbar-collapse" id="main-nav">
-          <ul class="navbar-nav ms-auto align-items-center">
+          <ul class="align-items-center
+              navbar-nav ms-auto">
             <li class="nav-item"><a class="nav-link" href="/">Beranda</a></li>
             <li class="nav-item"><a class="nav-link" href="/blog">Blog</a></li>
             <li class="nav-item">
@@ -70,11 +75,13 @@ interface Props {
       </div>
     </nav>
 
-    <main class="container py-5">
+    <main class="container
+        py-5">
       <slot />
     </main>
 
-    <footer class="text-center py-4 text-secondary">
+    <footer class="py-4
+        text-center text-secondary">
       <p>&copy; {new Date().getFullYear()} Akurasi Udara.</p>
     </footer>
 
@@ -112,36 +119,94 @@ interface Props {
   </body>
 </html>
 <style is:global>
-	/* Efek hover pada card: mengangkat dan memperbesar gambar */
-	.card { 
-        transition: transform 0.3s ease, box-shadow 0.3s ease; 
-        overflow: hidden; 
-    }
-	.card:hover { 
-        transform: translateY(-5px); 
-        box-shadow: var(--bs-box-shadow-lg) !important; 
-    }
-	.card .card-img-top, .card .img-fluid { 
-        transition: transform 0.3s ease; 
-    }
-	.card:hover .card-img-top, .card:hover .img-fluid { 
-        transform: scale(1.05); 
-    }
+  /* Efek hover pada card: mengangkat dan memperbesar gambar */
+  .card {
+    transition:
+      transform 0.3s ease,
+      box-shadow 0.3s ease;
+    overflow: hidden;
+  }
+  .card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--bs-box-shadow-lg) !important;
+  }
+  .card .card-img-top,
+  .card .img-fluid {
+    transition: transform 0.3s ease;
+  }
+  .card:hover .card-img-top,
+  .card:hover .img-fluid {
+    transform: scale(1.05);
+  }
 
-	/* Gaya untuk tombol light/dark mode agar tidak memiliki border */
-	#theme-toggle { 
-        border: none; 
-        background-color: transparent; 
-    }
-	#theme-toggle:focus { 
-        box-shadow: none; 
-    }
+  /* Gaya untuk tombol light/dark mode agar tidak memiliki border */
+  #theme-toggle {
+    border: none;
+    background-color: transparent;
+  }
+  #theme-toggle:focus {
+    box-shadow: none;
+  }
 
-	/* Aturan hover umum untuk semua link (termasuk navbar) agar menjadi kuning */
-	:root[data-bs-theme="dark"] a:hover,
-	:root[data-bs-theme="dark"] .nav-link:hover,
-	:root[data-bs-theme="light"] a:hover,
-	:root[data-bs-theme="light"] .nav-link:hover {
-		color: var(--bs-yellow) !important;
-	}
+  /* Aturan hover umum untuk semua link (termasuk navbar) agar menjadi kuning */
+  :root[data-bs-theme="dark"] a:hover,
+  :root[data-bs-theme="dark"] .nav-link:hover,
+  :root[data-bs-theme="light"] a:hover,
+  :root[data-bs-theme="light"] .nav-link:hover {
+    color: var(--bs-yellow) !important;
+  }
+
+  .hamburger-button {
+    border: none;
+    padding: 0.25rem 0.5rem;
+  }
+  .hamburger-button:focus,
+  .hamburger-button:focus-visible {
+    outline: none;
+    box-shadow: none;
+  }
+  .hamburger-icon {
+    position: relative;
+    width: 24px;
+    height: 18px;
+  }
+  .hamburger-icon span {
+    display: block;
+    position: absolute;
+    height: 3px;
+    width: 100%;
+    background: currentColor;
+    border-radius: 3px;
+    opacity: 1;
+    left: 0;
+    transform: rotate(0deg);
+    transition: 0.25s ease-in-out;
+  }
+  .hamburger-icon span:nth-child(1) {
+    top: 0;
+  }
+  .hamburger-icon span:nth-child(3) {
+    top: 14px;
+  }
+
+  /* PERBAIKAN: Membuat garis tengah rata kanan */
+  .hamburger-icon span:nth-child(2) {
+    top: 7px;
+    width: 60%;
+    left: auto; /* Hapus perataan kiri */
+    right: 0; /* Atur perataan menjadi kanan */
+  }
+
+  .hamburger-button[aria-expanded="true"] .hamburger-icon span:nth-child(1) {
+    top: 7px;
+    transform: rotate(135deg);
+  }
+  .hamburger-button[aria-expanded="true"] .hamburger-icon span:nth-child(2) {
+    opacity: 0;
+    left: -60px;
+  }
+  .hamburger-button[aria-expanded="true"] .hamburger-icon span:nth-child(3) {
+    top: 7px;
+    transform: rotate(-135deg);
+  }
 </style>
