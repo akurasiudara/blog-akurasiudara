@@ -1,9 +1,11 @@
 import { defineConfig } from 'astro/config';
 import svelte from "@astrojs/svelte";
 
+import cloudflare from '@astrojs/cloudflare';
+
 // https://astro.build/config
 export default defineConfig({
   site: 'http://ifan.web.id',
-  
-  integrations: [svelte()]
+  integrations: [svelte()],
+  adapter: cloudflare()
 });
