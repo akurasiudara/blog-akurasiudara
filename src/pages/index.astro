@@ -3,9 +3,6 @@ import Layout from '../layouts/Layout.astro';
 import { supabase } from '../lib/supabase';
 import { marked } from 'marked';
 
-// URL Thumbnail Default
-const DEFAULT_THUMBNAIL = 'https://images.unsplash.com/photo-1714464702947-36fb39f3bde4?q=80&w=880&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D';
-
 // Fungsi untuk format tanggal
 function formatDate(dateString) {
 	const options = { day: '2-digit', month: 'long', year: 'numeric' };
@@ -21,42 +18,63 @@ function calculateReadingTime(content) {
 }
 
 // Mengambil semua data dari Supabase
-const [linksRes, productsRes, postsRes] = await Promise.all([
+const [linksRes, productsRes, postsRes, allPostsRes] = await Promise.all([
     supabase.from('links').select('*').order('sort_order'),
-    supabase.from('products').select('*, slug'),
-    supabase.from('posts').select('*, content, category').limit(3).order('created_at', { ascending: false })
+    supabase.from('products').select('*, slug, images, image_url_old'),
+    supabase.from('posts').select('*, content, category').limit(3).order('created_at', { ascending: false }),
+    supabase.from('posts').select('category')
 ]);
 
 const links = linksRes.data;
+const rawProducts = productsRes.data;
+const rawPosts = postsRes.data;
 
-// Memproses data produk untuk mengubah deskripsi menjadi HTML
-const products = await Promise.all(productsRes.data?.map(async (product) => {
-    // Tentukan gambar utama: gambar pertama dari array 'images', atau gambar lama, atau placeholder
-    const primaryImage = (Array.isArray(product.images) && product.images.length > 0)
+// Memproses data produk
+const products = await Promise.all(
+  rawProducts?.map(async (product) => {
+    const primaryImage =
+      Array.isArray(product.images) && product.images.length > 0
         ? product.images[0]
-        : product.image_url_old || 'https://via.placeholder.com/400x300.png?text=No+Image';
+        : product.image_url_old ||
+          "https://via.placeholder.com/400x300.png?text=No+Image";
+
+    // PERBAIKAN: Buat URL WhatsApp di sini
+    const whatsAppNumber = '628161112148';
+    // Gunakan URL dasar situs Anda. Ganti jika perlu.
+    const productUrl = `${Astro.site}products/${product.slug}`; 
+    const baseMessage = `Assalamu'alaikum, saya tertarik dengan produk ${productUrl}`;
+    const encodedMessage = encodeURIComponent(baseMessage);
+    const finalWhatsAppUrl = `https://wa.me/${whatsAppNumber}?text=${encodedMessage}`;
 
     return {
-        ...product,
-        primaryImage, // Simpan gambar utama di properti baru
-        descriptionHtml: product.description ? await marked.parse(product.description) : '<p></p>'
+      ...product,
+      primaryImage,
+      finalWhatsAppUrl, // Tambahkan URL WhatsApp ke objek produk
+      descriptionHtml: product.description
+        ? await marked.parse(product.description)
+        : "<p></p>",
     };
-}) || []);
+  }) || []
+);
 
-
-// Memproses data postingan untuk menambahkan thumbnail default dan waktu baca
-const posts = postsRes.data?.map(post => ({
-    ...post,
-    image_url: post.image_url || DEFAULT_THUMBNAIL,
-    readingTime: calculateReadingTime(post.content)
+const posts = rawPosts?.map((post) => ({
+  ...post,
+  readingTime: calculateReadingTime(post.content),
 }));
+
+const allCategories = allPostsRes.data?.map(post => post.category).filter(Boolean);
+const uniqueCategories = [...new Set(allCategories)];
 ---
 <Layout title="Beranda - Akurasi Udara">
 	<div class="text-center mb-5">
 		<div class="g-one-wrapper mx-auto">
-			<div class="profile-container">
-				<img class="rounded-circle shadow-lg" width="120" height="120" src="/images/Palestine.png" alt="Foto profil">
-			</div>
+			<img
+			class="rounded-circle shadow-lg"
+			width="120"
+			height="120"
+			src="/images/Palestine.png"
+			alt="Foto profil"
+			/>
 		</div>
 		<h1 class="display-4 fw-bold mt-4">Akurasi Udara</h1>
 		<p class="lead text-secondary">Selamat datang di ruang digital saya.</p>
@@ -65,62 +83,110 @@ const posts = postsRes.data?.map(post => ({
 	<div class="row justify-content-center">
 		<div class="col-lg-8">
 			<section class="d-grid gap-3 mb-5">
-				{links?.map(link => (
-					<a href={link.url} target="_blank" class="link-block">{link.title}</a>
-				))}
+				{
+				links?.map((link) => (
+					<a
+					href={link.url}
+					target="_blank"
+					class="btn btn-warning btn-lg btn-flat"
+					>
+					{link.title}
+					</a>
+				))
+				}
 			</section>
 
 			<section class="mb-5">
 				<h2 class="display-6 fw-bold border-bottom pb-2 mb-4">Jualan Saya</h2>
 				<div class="row row-cols-2 g-2 g-md-4">
-					{products?.map(product => (
-						<div class="col">
-							<div class="card h-100 shadow-sm product-card border-light-subtle" 
-								 style="cursor: pointer;"
-								 data-bs-toggle="modal" 
-								 data-bs-target="#productModal"
-								 data-name={product.name} 
-								 data-image={product.primaryImage} data-description-html={product.descriptionHtml}
-								 data-link={product.whatsapp_link}
-								 data-slug={product.slug}
-							>
-								<img src={product.primaryImage} class="card-img-top" alt={product.name} style="height: 120px; object-fit: cover;"> <div class="card-body">
-									<h5 class="card-title text-center small">{product.name}</h5>
-								</div>
-							</div>
+				{
+					products?.map((product) => (
+					<div class="col">
+						<div
+						class="card h-100 product-card border-light-subtle"
+						style="cursor: pointer;"
+						data-bs-toggle="modal"
+						data-bs-target="#productModal"
+						data-name={product.name}
+						data-image={product.primaryImage}
+						data-description-html={product.descriptionHtml}
+						data-link={product.finalWhatsAppUrl} data-slug={product.slug}
+						>
+						<img
+							src={product.primaryImage}
+							class="card-img-top"
+							alt={product.name}
+							style="height: 120px; object-fit: cover;"
+						/>
+						<div class="card-body">
+							<h5 class="card-title text-center small">{product.name}</h5>
 						</div>
-					))}
+						</div>
+					</div>
+					))
+				}
 				</div>
 			</section>
 
 			<section>
-				<h2 class="display-6 fw-bold border-bottom pb-2 mb-4">Tulisan Terbaru</h2>
+				<h2 class="display-6 fw-bold border-bottom pb-2 mb-4">
+				Tulisan Terbaru
+				</h2>
 				<div class="list-group list-group-flush">
-					{posts?.map((post, index) => (
-						<div class="list-group-item bg-transparent px-0 py-3">
-							<div class="d-flex w-100 align-items-center">
-								<span class="fs-4 me-3 text-secondary">{(index + 1).toString().padStart(2, '0')}.</span>
-								<div class="flex-grow-1">
-									<h5 class="mb-1">
-										<a href={`/blog/${post.slug}`} class="text-reset text-decoration-none">
-											{post.title}
-										</a>
-									</h5>
-									<div class="d-flex align-items-center text-body-secondary small mt-2">
-										<a href={`/blog/kategori/${post.category}`} class="text-reset text-decoration-none me-3">
-											<i class="bi bi-tag-fill me-1"></i> {post.category || 'Umum'}
-										</a>
-										<span class="me-3"><i class="bi bi-calendar-event me-1"></i> {formatDate(post.created_at)}</span>
-										<span><i class="bi bi-eye-fill me-1"></i> {post.readingTime}</span>
-									</div>
-								</div>
+				{
+					posts?.map((post, index) => (
+					<div class="list-group-item bg-transparent px-0 py-3">
+						<div class="d-flex w-100 align-items-center">
+						<span class="fs-4 me-3 text-secondary">
+							{(index + 1).toString().padStart(2, "0")}.
+						</span>
+						<div class="flex-grow-1">
+							<h5 class="mb-1">
+							<a
+								href={`/blog/${post.slug}`}
+								class="text-reset text-decoration-none"
+							>
+								{post.title}
+							</a>
+							</h5>
+							<div class="d-flex align-items-center text-body-secondary small mt-2">
+							<a
+								href={`/blog/kategori/${post.category}`}
+								class="text-reset text-decoration-none me-3"
+							>
+								<i class="bi bi-tag-fill me-1" />
+								{post.category || "Umum"}
+							</a>
+							<span class="me-3">
+								<i class="bi bi-calendar-event me-1" />
+								{formatDate(post.created_at)}
+							</span>
+							<span>
+								<i class="bi bi-eye-fill me-1" /> {post.readingTime}
+							</span>
 							</div>
 						</div>
-					))}
+						</div>
+					</div>
+					))
+				}
 				</div>
-                <div class="text-center mt-4">
-                    <a href="/blog" class="btn btn-link text-secondary text-decoration-none">Lihat Postingan Lainnya &rarr;</a>
-                </div>
+				<div class="text-center mt-4">
+				<a
+					href="/blog"
+					class="btn btn-link text-secondary text-decoration-none"
+					>Lihat Postingan Lainnya &rarr;</a
+				>
+				</div>
+				<div class="mt-5 border-top pt-4">
+					<div class="d-flex flex-wrap gap-2 justify-content-center">
+						{uniqueCategories.map(category => (
+							<a href={`/blog/kategori/${category}`} class="text-secondary text-decoration-none">
+								#{category}
+							</a>
+						))}
+					</div>
+				</div>
 			</section>
 		</div>
 	</div>
@@ -131,7 +197,7 @@ const posts = postsRes.data?.map(post => ({
 				<div class="row g-0 align-items-stretch">
 					<div class="col-md-6 modal-image-col">
 						<div class="aspect-ratio-container">
-							<img id="modal-product-image" src="" class="aspect-ratio-item" alt="">
+							<img id="modal-product-image" src="" class="aspect-ratio-item" alt=""/>
 						</div>
 					</div>
 					<div class="col-md-6 d-flex flex-column p-4 modal-text-col">
@@ -144,9 +210,7 @@ const posts = postsRes.data?.map(post => ({
 						</div>
 						<div class="d-flex gap-2 mt-auto pt-3">
 							<a id="modal-product-slug-link" href="#" class="btn btn-warning w-100 btn-lg">Lihat Selengkapnya</a>
-							<a id="modal-product-wa-link" href="#" target="_blank" class="btn btn-success btn-lg flex-shrink-0">
-								<i class="bi bi-whatsapp"></i>
-							</a>
+							<a id="modal-product-wa-link" href="#" target="_blank" class="btn btn-success btn-lg flex-shrink-0"><i class="bi bi-whatsapp"></i></a>
 						</div>
 					</div>
 				</div>
@@ -156,148 +220,23 @@ const posts = postsRes.data?.map(post => ({
 </Layout>
 
 <script is:inline>
-	document.addEventListener('DOMContentLoaded', () => {
-		const productModal = document.getElementById('productModal');
-		productModal.addEventListener('show.bs.modal', event => {
+	document.addEventListener("DOMContentLoaded", () => {
+		const productModal = document.getElementById("productModal");
+		productModal.addEventListener("show.bs.modal", (event) => {
 			const card = event.relatedTarget;
 			const dataset = card.dataset;
-			const modalTitle = productModal.querySelector('.modal-title');
-			const modalImage = productModal.querySelector('#modal-product-image');
-			const modalDescription = productModal.querySelector('#modal-product-description');
-			const modalSlugLink = productModal.querySelector('#modal-product-slug-link');
-			const modalWaLink = productModal.querySelector('#modal-product-wa-link');
+			const modalTitle = productModal.querySelector(".modal-title");
+			const modalImage = productModal.querySelector("#modal-product-image");
+			const modalDescription = productModal.querySelector("#modal-product-description");
+			const modalSlugLink = productModal.querySelector("#modal-product-slug-link");
+			const modalWaLink = productModal.querySelector("#modal-product-wa-link");
 			
 			modalTitle.textContent = dataset.name;
 			modalImage.src = dataset.image;
-			modalDescription.innerHTML = dataset.descriptionHtml; // Menggunakan innerHTML
-			modalWaLink.href = dataset.link;
+			modalDescription.innerHTML = dataset.descriptionHtml;
+			// PERBAIKAN: Ambil link WhatsApp yang sudah jadi dari data-link
+			modalWaLink.href = dataset.link; 
 			modalSlugLink.href = `/products/${dataset.slug}`;
 		});
 	});
 </script>
-
-<style is:global>
-
-	/* --- PERBAIKAN: Efek Lingkaran Google One (Lebih Stabil) --- */
-	@keyframes spin {
-		from { transform: rotate(0deg); }
-		to { transform: rotate(360deg); }
-	}
-
-	.g-one-wrapper {
-		width: 132px; /* Lebar gambar (120px) + border (6px*2) */
-		height: 132px;
-		position: relative;
-		padding: 6px; /* Jarak antara ring dan gambar */
-		border-radius: 50%;
-	}
-
-	/* Lingkaran luar yang berputar */
-	.g-one-wrapper::before {
-		content: '';
-		position: absolute;
-		top: 0;
-		left: 0;
-		right: 0;
-		bottom: 0;
-		background: conic-gradient(
-			#ea4335, #fbbc05, #34a853, #4285f4, #ea4335
-		);
-		border-radius: 50%;
-		animation: spin 8s linear infinite;
-		transition: animation-duration 0.5s ease;
-	}
-
-	/* Lingkaran dalam untuk menutupi bagian tengah (menciptakan efek "lubang") */
-	.g-one-wrapper::after {
-		content: '';
-		position: absolute;
-		top: 3px; /* Setengah dari ketebalan ring */
-		left: 3px;
-		right: 3px;
-		bottom: 3px;
-		background: var(--bs-body-bg); /* Warna latar belakang situs */
-		border-radius: 50%;
-	}
-
-	.g-one-wrapper:hover::before {
-		animation-duration: 1s; /* Animasi lebih cepat saat hover */
-	}
-
-	.g-one-wrapper img {
-		position: relative; /* Pastikan gambar di atas pseudo-elements */
-		z-index: 2;
-		width: 100%;
-		height: 100%;
-		object-fit: cover;
-		border-radius: 50%;
-	}
-
-	/* --- Gaya untuk Tombol Link Halaman Utama --- */
-	.link-block {
-		display: block;
-		width: 100%;
-		padding: 0.75rem 1rem;
-		border-radius: 9999px; /* Sudut tumpul */
-		text-decoration: none;
-		font-weight: 500;
-		font-size: 1.1rem;
-		text-align: center;
-		transition: all 0.2s ease-in-out;
-		border: 1px solid var(--bs-border-color);
-		color: var(--bs-secondary-color);
-		background-color: transparent;
-	}
-	.link-block:hover {
-		transform: translateY(-2px);
-		box-shadow: var(--bs-box-shadow-sm);
-		color: var(--bs-body-color);
-		border-color: var(--bs-yellow);
-	}
-
-	/* Aturan Rasio Aspek Gambar Modal (Berlaku di semua layar) */
-	.aspect-ratio-container {
-		position: relative;
-		width: 100%;
-		padding-bottom: 100%;
-		overflow: hidden;
-	}
-	.aspect-ratio-item {
-		position: absolute;
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 100%;
-		object-fit: cover;
-	}
-	/* Aturan untuk Mobile (max-width: 767.98px) */
-	@media (max-width: 767.98px) {
-		.modal-dialog {
-			max-height: 85vh;
-		}
-		.modal-content {
-			overflow-y: auto;
-		}
-		.modal-description-wrapper {
-			overflow-y: auto;
-			max-height: 150px;
-		}
-	}
-	/* Aturan untuk Desktop (min-width: 768px) */
-	@media (min-width: 768px) {
-		.row.align-items-stretch {
-			align-items: stretch;
-		}
-		.modal-image-col .aspect-ratio-container {
-			height: 100%;
-		}
-		.modal-text-col {
-			height: 500px;
-		}
-		.modal-description-wrapper {
-			flex-grow: 1;
-			overflow-y: auto;
-			margin-bottom: 1rem;
-		}
-	}
-</style>

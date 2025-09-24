@@ -1,49 +1,54 @@
-/* --- Styling Konten Artikel Markdown --- */
+/* --- Styling Konten Artikel Markdown (Gaya Metro UI) --- */
 
 /* Base font & spacing */
 .prose {
     font-size: 1.1rem;
-    line-height: 1.8;
+    line-height: 1.7; /* Sedikit lebih rapat */
 }
 
-/* Headings */
+/* PERBAIKAN: Hierarki heading lebih halus & margin lebih rapat */
 .prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6 {
     font-weight: 700;
-    margin-top: 2em;
-    margin-bottom: 1em;
+    margin-top: 1.5em;
+    margin-bottom: 0.75em; /* Margin bawah lebih rapat */
 }
-.prose h1 { font-size: 2.5em; }
-.prose h2 { font-size: 2em; border-bottom: 1px solid var(--bs-border-color); padding-bottom: 0.3em; }
-.prose h3 { font-size: 1.75em; }
-.prose h4 { font-size: 1.5em; }
+.prose h1 { font-size: 2.2em; }
+.prose h2 { font-size: 1.8em; border-bottom: 2px solid var(--bs-border-color-translucent); padding-bottom: 0.3em; }
+.prose h3 { font-size: 1.5em; }
+.prose h4 { font-size: 1.25em; }
 
 /* Paragraf & Link */
 .prose p {
-    margin-bottom: 1.25em;
+    margin-bottom: 1em; /* Margin bawah lebih rapat */
 }
 .prose a {
+    color: var(--metro-accent);
     text-decoration: underline;
-    text-decoration-color: var(--bs-warning);
     text-decoration-thickness: 2px;
+}
+.prose a:hover {
+    color: var(--metro-accent);
+    filter: brightness(1.2);
 }
 
 /* Lists (ul, ol) */
 .prose ul, .prose ol {
-    padding-left: 2em;
-    margin-bottom: 1.25em;
+    padding-left: 1.5em; /* Padding lebih rapat */
+    margin-bottom: 1em;
 }
 .prose li {
-    margin-bottom: 0.5em;
+    margin-bottom: 0.25em; /* Margin antar item list lebih rapat */
 }
 .prose li > ul, .prose li > ol {
-    margin-top: 0.5em;
+    margin-top: 0.25em;
 }
 
 /* Blockquotes */
 .prose blockquote {
-    margin: 1.5em 0;
+    margin: 1.25em 0;
     padding: 0.5em 1.5em;
-    border-left: 4px solid var(--bs-warning);
+    border-radius: 0;
+    border-left: 4px solid var(--metro-accent);
     background-color: var(--bs-tertiary-bg);
     color: var(--bs-secondary-color);
 }
@@ -53,54 +58,70 @@
 
 /* Code Blocks & Inline Code */
 .prose code {
-    background-color: var(--bs-tertiary-bg);
-    color: var(--bs-danger-text-emphasis);
+    background-color: var(--bs-secondary-bg); /* Latar lebih gelap untuk kode inline */
+    color: var(--bs-emphasis-color);
     padding: 0.2em 0.4em;
-    border-radius: 6px;
+    border-radius: 0;
     font-size: 0.9em;
 }
 .prose pre {
-    padding: 1em;
+    padding: 1.25em; /* Padding lebih luas */
     margin: 1.5em 0;
-    background-color: var(--bs-tertiary-bg);
+    /* Gunakan warna body (paling gelap di dark mode) untuk kontras maksimal */
+    background-color: var(--bs-body-bg); 
     border: 1px solid var(--bs-border-color);
-    border-radius: 8px;
+    border-radius: 0;
     overflow-x: auto;
 }
 .prose pre code {
     background-color: transparent;
     padding: 0;
-    border-radius: 0;
     font-size: 0.9em;
+    color: inherit; /* Mewarisi warna dari <pre> */
 }
 
-/* Tables */
+/* PERBAIKAN: Tampilan Tabel lebih kaya */
 .prose table {
     width: 100%;
     margin: 1.5em 0;
     border-collapse: collapse;
 }
 .prose th, .prose td {
-    border: 1px solid var(--bs-border-color);
+    border: 1px solid var(--bs-border-color-translucent);
     padding: 0.75em 1em;
+    text-align: left;
 }
 .prose thead {
-    background-color: var(--bs-tertiary-bg);
+    /* Latar header dibuat lebih gelap */
+    background-color: var(--bs-secondary-bg);
+    border-bottom: 2px solid var(--bs-border-color);
 }
 .prose thead th {
-    font-weight: 600;
+    font-weight: 700;
 }
+
+/* Aturan untuk baris ganjil (odd) */
+.prose tbody tr:nth-of-type(odd) {
+    background-color: var(--bs-tertiary-bg);
+}
+
+/* Aturan untuk baris genap (even) - tidak perlu warna khusus, akan mengikuti warna dasar */
+.prose tbody tr:nth-of-type(even) {
+    background-color: transparent; /* Atau var(--bs-body-bg) */
+}
+
 
 /* Images */
 .prose img {
     max-width: 100%;
     height: auto;
-    border-radius: 8px;
+    border-radius: 0;
     margin: 1.5em 0;
 }
 
 /* Horizontal Rules */
 .prose hr {
-    margin: 3em 0;
-    border-top: 1px solid var(--bs-border-color);
+    margin: 2.5em 0;
+    border: none;
+    border-top: 2px solid var(--bs-border-color-translucent);
 }

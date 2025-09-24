@@ -1,0 +1,158 @@
+/* --- TEMA METRO UI FINAL --- */
+
+:root {
+    --metro-accent: #0078d4;
+}
+
+/* 1. Aturan Global & Tipografi */
+body {
+    background-color: var(--bs-body-bg);
+}
+h1, h2, h3, h4, h5, h6, .display-4, .display-5, .display-6 {
+    font-weight: 600;
+}
+
+/* 2. Kunci Desain Flat: Sudut tajam & tanpa bayangan */
+.card, .btn, .modal-content, .list-group-item, .form-control, .alert, .navbar, img, .rounded-circle, .navbar-toggler, .carousel, .carousel-inner, .badge {
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
+
+/* PERBAIKAN: Aturan baru untuk menyeragamkan semua border */
+.border, .border-top, .border-bottom, .border-start, .border-end,
+.table, th, td, thead,
+.modal-header, .modal-footer {
+    border-color: var(--bs-border-color-translucent) !important;
+}
+
+/* 3. Komponen Utama */
+.card {
+    border: 1px solid var(--bs-border-color-translucent);
+    background-color: var(--bs-tertiary-bg);
+    transition: background-color 0.2s ease;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
+.card:hover {
+    background-color: var(--bs-secondary-bg);
+    transform: none !important;
+}
+.btn {
+    font-weight: 600;
+    transition: filter 0.2s ease, transform 0.2s ease;
+}
+.btn:hover {
+    transform: translateY(-2px);
+}
+.btn-primary, .btn-warning, .btn-success, .btn-outline-warning, .btn-outline-primary {
+    background-color: var(--metro-accent) !important;
+    border-color: var(--metro-accent) !important;
+    color: white !important;
+}
+.btn-primary:hover, .btn-warning:hover, .btn-success:hover, .btn-outline-warning:hover, .btn-outline-primary:hover {
+    filter: brightness(1.15);
+}
+.btn-outline-secondary {
+    border-width: 2px;
+}
+.btn-link:hover {
+    color: var(--metro-accent) !important;
+}
+
+.navbar {
+    border-bottom: 3px solid var(--metro-accent);
+}
+.navbar-brand {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+.list-group-item {
+    background-color: transparent;
+}
+.list-group-item:hover {
+    background-color: var(--bs-secondary-bg);
+}
+
+/* 4. Animasi Hamburger Menu */
+.navbar-toggler {
+    border: none !important;
+}
+.navbar-toggler:focus {
+    box-shadow: none !important;
+}
+.hamburger-icon {
+    position: relative;
+    width: 24px;
+    height: 18px;
+    display: inline-block;
+}
+.hamburger-icon span {
+    display: block;
+    position: absolute;
+    height: 3px;
+    width: 100%;
+    background-color: var(--bs-emphasis-color);
+    transition: .25s ease-in-out;
+}
+.hamburger-icon span:nth-child(1) { top: 0px; }
+.hamburger-icon span:nth-child(2) { top: 8px; }
+.hamburger-icon span:nth-child(3) { top: 16px; }
+.navbar-toggler:not(.collapsed) .hamburger-icon span:nth-child(1) { top: 8px; transform: rotate(135deg); }
+.navbar-toggler:not(.collapsed) .hamburger-icon span:nth-child(2) { opacity: 0; transform: translateX(-20px); }
+.navbar-toggler:not(.collapsed) .hamburger-icon span:nth-child(3) { top: 8px; transform: rotate(-135deg); }
+
+/* 5. Modal Produk */
+@media (min-width: 768px) {
+  .row.align-items-stretch { align-items: stretch; }
+  .modal-image-col, .modal-text-col { height: 500px; }
+  .modal-image-col img { width: 100%; height: 100%; object-fit: cover; }
+  .modal-description-wrapper { flex-grow: 1; overflow-y: auto; margin-bottom: 1rem; }
+}
+
+
+.aspect-ratio-container {
+		position: relative;
+		width: 100%;
+		padding-bottom: 100%; /* Membuat tinggi sama dengan lebar (1:1) */
+		overflow: hidden;
+	}
+	.aspect-ratio-item {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+	}
+
+	/* Aturan untuk Mobile (max-width: 767.98px) */
+	@media (max-width: 767.98px) {
+		.modal-dialog {
+			max-height: 85vh;
+		}
+		.modal-content {
+			overflow-y: auto;
+		}
+		.modal-description-wrapper {
+			overflow-y: auto;
+			max-height: 150px;
+		}
+	}
+	
+	/* Aturan untuk Desktop (min-width: 768px) */
+	@media (min-width: 768px) {
+		.row.align-items-stretch {
+			align-items: stretch;
+		}
+		.modal-image-col .aspect-ratio-container {
+			height: 100%;
+		}
+		.modal-text-col {
+			height: 500px;
+		}
+		.modal-description-wrapper {
+			flex-grow: 1;
+			overflow-y: auto;
+			margin-bottom: 1rem;
+		}
+	}
