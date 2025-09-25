@@ -22,21 +22,13 @@ interface Props {
 		<nav class="navbar navbar-expand-md sticky-top bg-body-tertiary">
 			<div class="container">
 				<a class="navbar-brand" href="/">Akurasi Udara</a>
-
+				
 				<div class="d-flex d-md-none align-items-center">
 					<button class="btn me-2" id="theme-toggle-mobile" type="button" aria-label="Toggle theme">
 						<i class="bi bi-sun-fill theme-icon-sun"></i>
 						<i class="bi bi-moon-stars-fill theme-icon-moon d-none"></i>
 					</button>
-					<button
-						class="navbar-toggler hamburger-button collapsed"
-						type="button"
-						data-bs-toggle="collapse"
-						data-bs-target="#main-nav"
-						aria-controls="main-nav"
-						aria-expanded="false"
-						aria-label="Toggle navigation"
-					>
+					<button class="navbar-toggler hamburger-button collapsed" id="mobile-menu-toggler" type="button" aria-expanded="false" aria-label="Toggle navigation">
 						<div class="hamburger-icon" aria-hidden="true">
 							<span></span>
 							<span></span>
@@ -45,12 +37,12 @@ interface Props {
 					</button>
 				</div>
 				
-				<div class="collapse navbar-collapse" id="main-nav">
+				<div class="d-none d-md-block" id="main-nav-desktop">
 					<ul class="navbar-nav ms-auto align-items-center">
 						<li class="nav-item"><a class="nav-link" href="/">Beranda</a></li>
 						<li class="nav-item"><a class="nav-link" href="/blog">Blog</a></li>
 						<li class="nav-item"><a class="nav-link" href="/about">Tentang</a></li>
-						<li class="nav-item ms-md-3 d-none d-md-block">
+						<li class="nav-item ms-md-3">
 							<button class="btn" id="theme-toggle-desktop" type="button" aria-label="Toggle theme">
 								<i class="bi bi-sun-fill theme-icon-sun"></i>
 								<i class="bi bi-moon-stars-fill theme-icon-moon d-none"></i>
@@ -60,6 +52,14 @@ interface Props {
 				</div>
 			</div>
 		</nav>
+
+		<div id="mobile-menu-overlay">
+			<ul class="nav flex-column">
+				<li class="nav-item"><a class="nav-link" href="/">Beranda</a></li>
+				<li class="nav-item"><a class="nav-link" href="/blog">Blog</a></li>
+				<li class="nav-item"><a class="nav-link" href="/about">Tentang</a></li>
+			</ul>
+		</div>
 
 		<main class="container py-4">
 			<slot />
@@ -71,31 +71,38 @@ interface Props {
 
 		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 		<script is:inline>
-			// PERBAIKAN: Skrip sekarang mengontrol kedua tombol
+			// Skrip theme toggle tidak berubah
 			(() => {
 				const getStoredTheme = () => localStorage.getItem('theme');
 				const getPreferredTheme = () => window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-				
 				const setTheme = theme => {
 					document.documentElement.setAttribute('data-bs-theme', theme);
 					localStorage.setItem('theme', theme);
-					
-					// Update semua ikon yang cocok
 					document.querySelectorAll('.theme-icon-sun').forEach(icon => icon.classList.toggle('d-none', theme === 'dark'));
 					document.querySelectorAll('.theme-icon-moon').forEach(icon => icon.classList.toggle('d-none', theme === 'light'));
 				};
-
 				const currentTheme = getStoredTheme() || getPreferredTheme();
 				setTheme(currentTheme);
-
 				const toggleTheme = () => {
 					const theme = getStoredTheme() === 'dark' ? 'light' : 'dark';
 					setTheme(theme);
 				};
-				
-				// Tambahkan event listener ke kedua tombol
 				document.getElementById('theme-toggle-desktop').addEventListener('click', toggleTheme);
 				document.getElementById('theme-toggle-mobile').addEventListener('click', toggleTheme);
+			})();
+
+			// Skrip baru untuk mengontrol menu kustom
+			(() => {
+				const toggler = document.getElementById('mobile-menu-toggler');
+				const menu = document.getElementById('mobile-menu-overlay');
+				if (!toggler || !menu) return;
+				toggler.addEventListener('click', () => {
+					const isExpanded = toggler.getAttribute('aria-expanded') === 'true';
+					toggler.setAttribute('aria-expanded', String(!isExpanded));
+                    toggler.classList.toggle('collapsed');
+					menu.classList.toggle('is-open');
+					document.body.classList.toggle('overflow-hidden');
+				});
 			})();
 		</script>
 	</body>

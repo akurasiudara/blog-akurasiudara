@@ -52,7 +52,6 @@ h1, h2, h3, h4, h5, h6, .display-4, .display-5, .display-6 {
 
 .navbar {
     border-bottom: 3px solid var(--metro-accent);
-    /* PERBAIKAN: Naikkan posisi navbar agar di atas overlay menu */
     position: relative;
     z-index: 1045; 
 }
@@ -70,7 +69,7 @@ h1, h2, h3, h4, h5, h6, .display-4, .display-5, .display-6 {
 /* 4. Animasi Hamburger Menu & Overlay Mobile */
 .navbar-toggler {
     border: none !important;
-    z-index: 1050; /* Pastikan tombol selalu di paling atas */
+    z-index: 1050;
 }
 .navbar-toggler:focus {
     box-shadow: none !important;
@@ -92,50 +91,46 @@ h1, h2, h3, h4, h5, h6, .display-4, .display-5, .display-6 {
 .hamburger-icon span:nth-child(1) { top: 0px; }
 .hamburger-icon span:nth-child(2) { top: 8px; }
 .hamburger-icon span:nth-child(3) { top: 16px; }
-.navbar-toggler:not(.collapsed) .hamburger-icon span:nth-child(1) { top: 8px; transform: rotate(135deg); }
-.navbar-toggler:not(.collapsed) .hamburger-icon span:nth-child(2) { opacity: 0; transform: translateX(-20px); }
-.navbar-toggler:not(.collapsed) .hamburger-icon span:nth-child(3) { top: 8px; transform: rotate(-135deg); }
+.navbar-toggler[aria-expanded="true"] .hamburger-icon span:nth-child(1) { top: 8px; transform: rotate(135deg); }
+.navbar-toggler[aria-expanded="true"] .hamburger-icon span:nth-child(2) { opacity: 0; transform: translateX(-20px); }
+.navbar-toggler[aria-expanded="true"] .hamburger-icon span:nth-child(3) { top: 8px; transform: rotate(-135deg); }
 
-@media (max-width: 767.98px) {
-    .navbar-collapse.collapse.show {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        background-color: var(--bs-body-bg);
-        z-index: 1040;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        padding: 2rem;
-        animation: fadeIn 0.3s ease;
-    }
-    @keyframes fadeIn {
-        from { opacity: 0; }
-        to { opacity: 1; }
-    }
-    .navbar-collapse .navbar-nav {
-        width: 100%;
-        text-align: center;
-    }
-    .navbar-collapse .nav-item {
-        margin: 0.5rem 0;
-    }
-    .navbar-collapse .nav-link {
-        font-size: 1.5rem;
-        font-weight: 600;
-        padding: 1rem;
-        background-color: var(--bs-tertiary-bg);
-        transition: background-color 0.2s ease;
-    }
-    .navbar-collapse .nav-link:hover {
-        background-color: var(--metro-accent);
-        color: white !important;
-    }
-    .navbar-collapse .nav-item .btn {
-        font-size: 1.5rem;
-    }
+
+#mobile-menu-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: var(--bs-body-bg);
+    z-index: 1040;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+#mobile-menu-overlay.is-open {
+    opacity: 1;
+    visibility: visible;
+}
+#mobile-menu-overlay .nav-item {
+    margin: 0.5rem 0;
+    max-width: 400px;
+}
+#mobile-menu-overlay .nav-link {
+    font-size: 1.5rem;
+    font-weight: 600;
+    padding: 1rem;
+    background-color: var(--bs-tertiary-bg);
+    text-align: center;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+#mobile-menu-overlay .nav-link:hover {
+    background-color: var(--metro-accent);
+    color: white !important;
 }
 
 
