@@ -51,10 +51,27 @@ h1, h2, h3, h4, h5, h6, .display-4, .display-5, .display-6 {
 }
 
 .navbar {
-    border-bottom: 3px solid var(--metro-accent);
     position: relative;
     z-index: 1045; 
 }
+
+.navbar::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 3px; /* Ketebalan garis */
+    background-image: linear-gradient(
+        to right, 
+        #ea4335 20%, 
+        #fbbc05 20% 40%, 
+        #34a853 40% 60%, 
+        #4285f4 60% 80%, 
+        #0078d4 80%
+    );
+}
+
 .navbar-brand {
     font-size: 1.5rem;
     font-weight: 700;
