@@ -91,9 +91,9 @@ h1, h2, h3, h4, h5, h6, .display-4, .display-5, .display-6 {
 .hamburger-icon span:nth-child(1) { top: 0px; }
 .hamburger-icon span:nth-child(2) { top: 8px; }
 .hamburger-icon span:nth-child(3) { top: 16px; }
-.navbar-toggler[aria-expanded="true"] .hamburger-icon span:nth-child(1) { top: 8px; transform: rotate(135deg); }
-.navbar-toggler[aria-expanded="true"] .hamburger-icon span:nth-child(2) { opacity: 0; transform: translateX(-20px); }
-.navbar-toggler[aria-expanded="true"] .hamburger-icon span:nth-child(3) { top: 8px; transform: rotate(-135deg); }
+.navbar-toggler:not(.collapsed) .hamburger-icon span:nth-child(1) { top: 8px; transform: rotate(135deg); }
+.navbar-toggler:not(.collapsed) .hamburger-icon span:nth-child(2) { opacity: 0; transform: translateX(-20px); }
+.navbar-toggler:not(.collapsed) .hamburger-icon span:nth-child(3) { top: 8px; transform: rotate(-135deg); }
 
 
 #mobile-menu-overlay {
@@ -118,7 +118,7 @@ h1, h2, h3, h4, h5, h6, .display-4, .display-5, .display-6 {
 }
 #mobile-menu-overlay .nav-item {
     margin: 0.5rem 0;
-    max-width: 400px;
+    width: 100%;
 }
 #mobile-menu-overlay .nav-link {
     font-size: 1.5rem;
@@ -135,6 +135,25 @@ h1, h2, h3, h4, h5, h6, .display-4, .display-5, .display-6 {
 
 
 /* 5. Modal Produk */
+/* PERBAIKAN: Tambahkan blok media query untuk mobile */
+@media (max-width: 767.98px) {
+    .modal-dialog {
+        max-height: 85vh;
+    }
+    .modal-content {
+        overflow-y: auto; /* Aktifkan scroll jika kontennya panjang */
+    }
+    .modal-image-col img {
+        aspect-ratio: 1 / 1; /* Paksa gambar menjadi persegi */
+        object-fit: cover;
+        width: 100%;
+    }
+    .modal-description-wrapper {
+        overflow-y: auto;
+        max-height: 150px; /* Batasi tinggi deskripsi dan beri scroll */
+    }
+}
+
 @media (min-width: 768px) {
   .row.align-items-stretch { align-items: stretch; }
   .modal-image-col, .modal-text-col { height: 500px; }
