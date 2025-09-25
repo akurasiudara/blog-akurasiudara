@@ -18,20 +18,11 @@ h1, h2, h3, h4, h5, h6, .display-4, .display-5, .display-6 {
     box-shadow: none !important;
 }
 
-/* PERBAIKAN: Aturan baru untuk menyeragamkan semua border */
-.border, .border-top, .border-bottom, .border-start, .border-end,
-.table, th, td, thead,
-.modal-header, .modal-footer {
-    border-color: var(--bs-border-color-translucent) !important;
-}
-
 /* 3. Komponen Utama */
 .card {
     border: 1px solid var(--bs-border-color-translucent);
     background-color: var(--bs-tertiary-bg);
     transition: background-color 0.2s ease;
-    border-radius: 0 !important;
-    box-shadow: none !important;
 }
 .card:hover {
     background-color: var(--bs-secondary-bg);
@@ -61,6 +52,9 @@ h1, h2, h3, h4, h5, h6, .display-4, .display-5, .display-6 {
 
 .navbar {
     border-bottom: 3px solid var(--metro-accent);
+    /* PERBAIKAN: Naikkan posisi navbar agar di atas overlay menu */
+    position: relative;
+    z-index: 1045; 
 }
 .navbar-brand {
     font-size: 1.5rem;
@@ -73,9 +67,10 @@ h1, h2, h3, h4, h5, h6, .display-4, .display-5, .display-6 {
     background-color: var(--bs-secondary-bg);
 }
 
-/* 4. Animasi Hamburger Menu */
+/* 4. Animasi Hamburger Menu & Overlay Mobile */
 .navbar-toggler {
     border: none !important;
+    z-index: 1050; /* Pastikan tombol selalu di paling atas */
 }
 .navbar-toggler:focus {
     box-shadow: none !important;
@@ -101,6 +96,49 @@ h1, h2, h3, h4, h5, h6, .display-4, .display-5, .display-6 {
 .navbar-toggler:not(.collapsed) .hamburger-icon span:nth-child(2) { opacity: 0; transform: translateX(-20px); }
 .navbar-toggler:not(.collapsed) .hamburger-icon span:nth-child(3) { top: 8px; transform: rotate(-135deg); }
 
+@media (max-width: 767.98px) {
+    .navbar-collapse.collapse.show {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: var(--bs-body-bg);
+        z-index: 1040;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 2rem;
+        animation: fadeIn 0.3s ease;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    .navbar-collapse .navbar-nav {
+        width: 100%;
+        text-align: center;
+    }
+    .navbar-collapse .nav-item {
+        margin: 0.5rem 0;
+    }
+    .navbar-collapse .nav-link {
+        font-size: 1.5rem;
+        font-weight: 600;
+        padding: 1rem;
+        background-color: var(--bs-tertiary-bg);
+        transition: background-color 0.2s ease;
+    }
+    .navbar-collapse .nav-link:hover {
+        background-color: var(--metro-accent);
+        color: white !important;
+    }
+    .navbar-collapse .nav-item .btn {
+        font-size: 1.5rem;
+    }
+}
+
+
 /* 5. Modal Produk */
 @media (min-width: 768px) {
   .row.align-items-stretch { align-items: stretch; }
@@ -108,51 +146,3 @@ h1, h2, h3, h4, h5, h6, .display-4, .display-5, .display-6 {
   .modal-image-col img { width: 100%; height: 100%; object-fit: cover; }
   .modal-description-wrapper { flex-grow: 1; overflow-y: auto; margin-bottom: 1rem; }
 }
-
-
-.aspect-ratio-container {
-		position: relative;
-		width: 100%;
-		padding-bottom: 100%; /* Membuat tinggi sama dengan lebar (1:1) */
-		overflow: hidden;
-	}
-	.aspect-ratio-item {
-		position: absolute;
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 100%;
-		object-fit: cover;
-	}
-
-	/* Aturan untuk Mobile (max-width: 767.98px) */
-	@media (max-width: 767.98px) {
-		.modal-dialog {
-			max-height: 85vh;
-		}
-		.modal-content {
-			overflow-y: auto;
-		}
-		.modal-description-wrapper {
-			overflow-y: auto;
-			max-height: 150px;
-		}
-	}
-	
-	/* Aturan untuk Desktop (min-width: 768px) */
-	@media (min-width: 768px) {
-		.row.align-items-stretch {
-			align-items: stretch;
-		}
-		.modal-image-col .aspect-ratio-container {
-			height: 100%;
-		}
-		.modal-text-col {
-			height: 500px;
-		}
-		.modal-description-wrapper {
-			flex-grow: 1;
-			overflow-y: auto;
-			margin-bottom: 1rem;
-		}
-	}
